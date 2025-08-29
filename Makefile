@@ -5,6 +5,9 @@ create-local-airflow-repositiories:
 delete-local-airflow-repositories:
 	rm -rf ./dags ./comfig ./logs ./plugins ./config .env
 
+build-docker-image:
+	docker build --no-cache --tag extending-airflow:latest .
+
 run-init:
 	docker compose up airflow-init
 
