@@ -1,6 +1,6 @@
 create-local-airflow-repositiories:
 	mkdir ./dags ./config ./logs ./plugins
-	echo -e "AIRFLOW_UID=$(id -u)" > .env
+	@echo "AIRFLOW_UID=$$(id -u)" > .env
 
 delete-local-airflow-repositories:
 	rm -rf ./dags ./comfig ./logs ./plugins ./config .env
