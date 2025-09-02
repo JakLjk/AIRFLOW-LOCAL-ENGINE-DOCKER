@@ -72,11 +72,14 @@ x-airflow-common:
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     # The following line can be used to set a custom config file, stored in the local config folder
     AIRFLOW_CONFIG: '/opt/airflow/config/airflow.cfg'
+    PYTHONPATH: '/opt/airflow/libs'
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/libs:/opt/airflow/libs
+    - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -100,6 +103,10 @@ services:
       retries: 5
       start_period: 5s
     restart: always
+    networks:
+      netl:
+        aliases: [airflow-postgres]
+
 
   # redis:
   #   # Redis is limited to 7.2-bookworm due to licencing change
@@ -118,6 +125,9 @@ services:
   airflow-apiserver:
     <<: *airflow-common
     command: api-server
+    networks:
+      netl:
+        aliases: [airflow-apiserver]
     ports:
       - "8084:8080"
     healthcheck:
@@ -135,6 +145,9 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    networks:
+      netl:
+        aliases: [airflow-scheduler]
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s
@@ -150,6 +163,9 @@ services:
   airflow-dag-processor:
     <<: *airflow-common
     command: dag-processor
+    networks:
+      netl:
+        aliases: [airflow-dagprocessor]
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type DagProcessorJob --hostname "$${HOSTNAME}"']
       interval: 30s
@@ -190,6 +206,9 @@ services:
   airflow-triggerer:
     <<: *airflow-common
     command: triggerer
+    networks:
+      netl:
+        aliases: [airflow-triggerer]
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
       interval: 30s
@@ -285,6 +304,9 @@ services:
         ls -la /opt/airflow/{logs,dags,plugins,config}
 
     # yamllint enable rule:line-length
+    networks:
+      netl:
+        aliases: [airflow-init]
     environment:
       <<: *airflow-common-env
       _AIRFLOW_DB_MIGRATE: 'true'
@@ -296,6 +318,9 @@ services:
 
   airflow-cli:
     <<: *airflow-common
+    networks:
+      netl:
+        aliases: [airflow-cli]
     profiles:
       - debug
     environment:
@@ -333,3 +358,9 @@ services:
 
 volumes:
   postgres-db-volume:
+
+
+networks:
+  netl:
+    external: true
+    name: network-etl

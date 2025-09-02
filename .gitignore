@@ -3,6 +3,8 @@ config/
 dags/
 logs/
 plugins/
+libs/
+data/
 
 # General
 .DS_Store

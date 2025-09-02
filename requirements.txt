@@ -1,2 +1,7 @@
 scikit-learn
 matplotlib
+requests
+urllib3
+python-dateutil
+pip-system-certs
+apache-airflow-providers-apache-hdfs
