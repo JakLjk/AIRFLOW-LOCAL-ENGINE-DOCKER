@@ -5,3 +5,5 @@ urllib3
 python-dateutil
 pip-system-certs
 apache-airflow-providers-apache-hdfs
+apache-airflow-providers-apache-spark
+delta-spark
